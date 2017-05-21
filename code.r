@@ -47,28 +47,41 @@ citetaal$lon =  as.numeric(gsub(",", ".", as.vector(citetaal$lon)))
 
 # fetch the palatalization observations
 citetaal.pal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
-			       citetaal$tweet_observation_variant == "cite"), ]
+			       citetaal$tweet_observation_variant == "cite" &
+			       citetaal$loc != ""), ]
+
+# calculate per location the amount of palatalization observations
+pallocgroup = group_by(citetaal.pal, loc)
+pallocs = summarise(pallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
 
 # initialize the map
-plot(spdf, border="darkgrey", main="Observations of palatalization are mainly in Flanders")
+plot(spdf, border="darkgrey")
 map("rivers", add=TRUE, col="cornflowerblue")
 
 # plot the palatalization observations on map
-points(citetaal.pal$lon, citetaal.pal$lat, pch=20, col="red")
+points(pallocs$longitude, pallocs$latitude, pch=20, cex=(pallocs$count / max(pallocs$count)) + 1, col="red")
 
 ############################################################################################
 # Niet variationele kaarten van palatalisatie "shtijl"
 ############################################################################################
 
-# fetch the stijl-palatalization observations
-citetaal.pal.stijl = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" && citetaal$tweet_observation_), ]
+# fetch the palatalization observations
+citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
+			       citetaal$tweet_observation_variant == "cite" &
+			       grepl("ijl", citetaal$tweet_observation) &
+			       citetaal$loc != ""), ]
+
+# calculate per location the amount of palatalization observations
+stijlpallocgroup = group_by(citetaal.stijlpal, loc)
+stijlpallocs = summarise(stijlpallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
 
 # initialize the map
-plot(spdf, border="darkgrey", main="Observations of palatalization are mainly in Flanders")
+plot(spdf, border="darkgrey")
 map("rivers", add=TRUE, col="cornflowerblue")
 
 # plot the palatalization observations on map
-points(citetaal.pal$lon, citetaal.pal$lat, pch=20, col="red")
+points(stijlpallocs$longitude, stijlpallocs$latitude, pch=20, 
+       cex=(stijlpallocs$count / max(stijlpallocs$count)) + 1, col="red")
 
 ############################################################################################
 # Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
@@ -77,3 +90,21 @@ points(citetaal.pal$lon, citetaal.pal$lat, pch=20, col="red")
 ############################################################################################
 # Niet variationele kaarten van intensificatie met "vies"
 ############################################################################################
+
+# fetch the palatalization observations
+citetaal.viesint = citetaal[ which(citetaal$tweet_observation_variable == "intensification" & 
+			       citetaal$tweet_observation_variant == "cite" &
+			       grepl("vies", citetaal$tweet_observation) &
+			       citetaal$loc != ""), ]
+
+# calculate per location the amount of vies intensification observations
+viesintlocgroup = group_by(citetaal.viesint, loc)
+viesintlocs = summarise(viesintlocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
+
+# initialize the map
+plot(spdf, border="darkgrey")
+map("rivers", add=TRUE, col="cornflowerblue")
+
+# plot the vies observations on map
+points(viesintlocs$longitude, viesintlocs$latitude, pch=20, 
+       cex=(viesintlocs$count / max(viesintlocs$count)) + 1, col="red")
