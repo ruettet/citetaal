@@ -87,6 +87,30 @@ points(stijlpallocs$longitude, stijlpallocs$latitude, pch=20,
 # Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
 ############################################################################################
 
+par(mfrow=c(2,3))
+for (year in c(2012, 2013, 2014, 2015, 2016)) 
+{
+	# fetch the palatalization observations
+	citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
+				       citetaal$tweet_observation_variant == "cite" &
+				       grepl("ijl", citetaal$tweet_observation) &
+				       citetaal$loc != "" & 
+				       citetaal$year == year
+				      ), ]
+
+	# calculate per location the amount of palatalization observations
+	stijlpallocgroup = group_by(citetaal.stijlpal, loc)
+	stijlpallocs = summarise(stijlpallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
+
+	# initialize the map
+	plot(spdf, border="darkgrey", main=year)
+	map("rivers", add=TRUE, col="cornflowerblue")
+
+	# plot the palatalization observations on map
+	points(stijlpallocs$longitude, stijlpallocs$latitude, pch=20, 
+	       cex=(stijlpallocs$count / max(stijlpallocs$count)) + 1, col="red")
+}
+
 ############################################################################################
 # Niet variationele kaarten van intensificatie met "vies"
 ############################################################################################
@@ -102,6 +126,7 @@ viesintlocgroup = group_by(citetaal.viesint, loc)
 viesintlocs = summarise(viesintlocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
 
 # initialize the map
+par(mfrow=c(1,1))
 plot(spdf, border="darkgrey")
 map("rivers", add=TRUE, col="cornflowerblue")
 
