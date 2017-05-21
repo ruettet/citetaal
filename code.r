@@ -9,8 +9,8 @@ library(xtable)
 
 ## some functions that are needed for non-us maps
 loadGADM <- function (fileName, level = 0, ...) {
-	print(paste("https://github.com/ruettet/citetaal/blob/master/", fileName, "_adm1.RData?raw=true", sep = ""))
-	load(paste("https://github.com/ruettet/citetaal/blob/master/", fileName, "_adm1.RData?raw=true", sep = ""))
+	print(paste("./", fileName, "_adm", level, ".RData", sep = ""))
+ 	load(paste("./", fileName, "_adm", level, ".RData", sep = ""))
 	gadm
 }
 
