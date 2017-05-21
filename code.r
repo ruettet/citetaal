@@ -35,7 +35,7 @@ getCountries <- function (fileNames, level = 0, ...) {
 spdf <- getCountries(c("NLD", "BEL"), level=1)
 
 # read in the data
-citetaal = read.csv(url("https://docs.google.com/spreadsheets/d/1rwd2EQtvSKemiFiqBtMmyjAXQ0y83aC2U1ar4NfGv3Y/pub?gid=741642917&single=true&output=csv"))
+citetaal = read.csv(url("https://raw.githubusercontent.com/ruettet/citetaal/master/cite.csv"))
 
 # fix the lat lon as string
 citetaal$lat = as.numeric(as.vector(citetaal$lat))
