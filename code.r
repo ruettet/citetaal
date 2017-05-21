@@ -5,7 +5,7 @@ library(spdep)
 library(RANN)
 library(maps)
 library(mapdata)
-library(xtable)
+library(dplyr)
 
 ## some functions that are needed for non-us maps
 loadGADM <- function (fileName, level = 0, ...) {
