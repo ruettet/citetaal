@@ -7,6 +7,7 @@ library(maps)
 library(mapdata)
 library(dplyr)
 library(lazyeval)
+library(tidyr)
 
 ## some functions that are needed for non-us maps
 loadGADM <- function (fileName, level = 0, ...) {
@@ -45,6 +46,30 @@ pivotAndPlot <- function(selected_data) {
 	points(summarised$longitude, summarised$latitude, pch=20, cex=(summarised$count / max(summarised$count)) + 1, col="red")
 }
 
+pivotAndProportionAndPlot <- function(selected_data) {
+	# build a lat/lon source
+	latLon = as.data.frame(summarise(group_by(selected_data, loc), latitude=mean(lat), longitude=mean(lon)))
+	
+	# count the cite and not cite observations
+	grouping = group_by(selected_data, loc, tweet_observation_variant)
+	summarised = summarise(grouping, count=n())
+	
+	# turn into wide format as to be able to take proportion of cite observations
+	summarised.wide = spread(summarised, tweet_observation_variant, count)
+	summarised.wide[is.na(summarised.wide)] <- 0
+	ratios = summarised.wide['cite'] / (summarised.wide['cite'] + summarised.wide['not cite'])
+	
+	# add to lat/lon source
+	latLon$ratios = ratios
+	
+	# initialize the map
+	plot(spdf, border="darkgrey")
+	map("rivers", add=TRUE, col="cornflowerblue")
+
+	# plot the palatalization observations on map
+	points(latLon$longitude, latLon$latitude, pch=20, cex=1, col=rgb(latLon$ratios$cite, 0, 0))
+}
+
 # load the maps
 spdf <- getCountries(c("NLD", "BEL"), level=1)
 
@@ -67,15 +92,14 @@ for (year in c(2012, 2013, 2014, 2015, 2016))
 	citetaal.pal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
 				       citetaal$tweet_observation_variant == "cite" &
 				       citetaal$loc != "" & 
-				       citetaal$year == year
-				      ), ]
-	pivotAndPlot5(citetaal.pal)
+				       citetaal$year == year), ]
+	pivotAndPlot(citetaal.pal)
 }
 
 
 
 ############################################################################################
-# KAART 3. Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
+# KAART 3. Niet variationele kaart van palatalisatie "shtijl", jaar per jaar
 ############################################################################################
 
 par(mfrow=c(2,3))
@@ -83,24 +107,33 @@ for (year in c(2012, 2013, 2014, 2015, 2016))
 {
 	# fetch the palatalization observations
 	citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
-				       citetaal$tweet_observation_variant == "cite" &
-				       citetaal$shibboleth == "stijl" &
-				       citetaal$loc != "" & 
-				       citetaal$year == year
-				      ), ]
-	pivotAndPlot5(citetaal.stijlpal)
+				            citetaal$tweet_observation_variant == "cite" &
+				            citetaal$shibboleth == "stijl" &
+				            citetaal$loc != "" & 
+				            citetaal$year == year), ]
+	pivotAndPlot(citetaal.stijlpal)
 }
 
+
 ############################################################################################
-# Niet variationele kaarten van intensificatie met "vies"
+# KAART 4. Variationele kaart (cite/not cite) van lemma "stijl" in "style" betekenis
 ############################################################################################
 
 # fetch the palatalization observations
-citetaal.viesint = citetaal[ which(citetaal$tweet_observation_variable == "intensification" & 
-			       citetaal$tweet_observation_variant == "cite" &
-			       grepl("vies", citetaal$tweet_observation) &
-			       citetaal$loc != ""), ]
-
+citetaal.stijl.style = citetaal[ which(citetaal$shibboleth == "stijl" & 
+			               citetaal$meaning == "style" &
+			               citetaal$loc != ""), ]
 par(mfrow=c(1,1))
+pivotAndProportionAndPlot(citetaal.stijl.style)
 
-pivotAndPlot(citetaal.viesint)
+
+############################################################################################
+# KAART 5. Variationele kaart (cite/not cite) van lemma "stijl" in "cool" betekenis
+############################################################################################
+
+# fetch the palatalization observations
+citetaal.stijl.cool = citetaal[ which(citetaal$shibboleth == "stijl" & 
+			       citetaal$meaning == "cool" &
+			       citetaal$loc != ""), ]
+par(mfrow=c(1,1))
+pivotAndProportionAndPlot(citetaal.stijl.cool)
