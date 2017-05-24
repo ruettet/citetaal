@@ -75,7 +75,7 @@ for (year in c(2012, 2013, 2014, 2015, 2016))
 
 
 ############################################################################################
-# Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
+# KAART 3. Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
 ############################################################################################
 
 par(mfrow=c(2,3))
@@ -84,13 +84,11 @@ for (year in c(2012, 2013, 2014, 2015, 2016))
 	# fetch the palatalization observations
 	citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
 				       citetaal$tweet_observation_variant == "cite" &
-				       grepl("ijl", citetaal$tweet_observation) &
+				       citetaal$shibboleth == "stijl" &
 				       citetaal$loc != "" & 
 				       citetaal$year == year
 				      ), ]
-	
 	pivotAndPlot5(citetaal.stijlpal)
-
 }
 
 ############################################################################################
