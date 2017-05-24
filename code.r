@@ -6,6 +6,7 @@ library(RANN)
 library(maps)
 library(mapdata)
 library(dplyr)
+library(lazyeval)
 
 ## some functions that are needed for non-us maps
 loadGADM <- function (fileName, level = 0, ...) {
@@ -31,11 +32,25 @@ getCountries <- function (fileNames, level = 0, ...) {
 	polyMap
 }
 
+pivotAndPlot <- function(selected_data) {
+	# calculate per location the amount of palatalization observations
+	grouping = group_by(selected_data, loc)
+	summarised = summarise(grouping, count=n(), latitude=mean(lat), longitude=mean(lon))
+
+	# initialize the map
+	plot(spdf, border="darkgrey")
+	map("rivers", add=TRUE, col="cornflowerblue")
+
+	# plot the palatalization observations on map
+	points(summarised$longitude, summarised$latitude, pch=20, cex=(summarised$count / max(summarised$count)) + 1, col="red")
+}
+
 # load the maps
 spdf <- getCountries(c("NLD", "BEL"), level=1)
 
 # read in the data
-citetaal = read.csv(url("https://raw.githubusercontent.com/ruettet/citetaal/master/cite.csv"), sep=";")
+google_docs_url = "https://docs.google.com/spreadsheets/d/1JtJ6SSaQxI6Ayx2mAyM3rUy3u4wq0tkwnANRbfLo3nw/pub?gid=1587530388&single=true&output=csv"
+citetaal = read.csv(url(google_docs_url), sep=",")
 
 # fix the lat lon as string
 citetaal$lat =  as.numeric(gsub(",", ".", as.vector(citetaal$lat)))
@@ -50,16 +65,7 @@ citetaal.pal = citetaal[ which(citetaal$tweet_observation_variable == "palatalis
 			       citetaal$tweet_observation_variant == "cite" &
 			       citetaal$loc != ""), ]
 
-# calculate per location the amount of palatalization observations
-pallocgroup = group_by(citetaal.pal, loc)
-pallocs = summarise(pallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
-
-# initialize the map
-plot(spdf, border="darkgrey")
-map("rivers", add=TRUE, col="cornflowerblue")
-
-# plot the palatalization observations on map
-points(pallocs$longitude, pallocs$latitude, pch=20, cex=(pallocs$count / max(pallocs$count)) + 1, col="red")
+pivotAndPlot(citetaal.pal)
 
 ############################################################################################
 # Niet variationele kaarten van palatalisatie "shtijl"
@@ -71,17 +77,7 @@ citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "pala
 			       grepl("ijl", citetaal$tweet_observation) &
 			       citetaal$loc != ""), ]
 
-# calculate per location the amount of palatalization observations
-stijlpallocgroup = group_by(citetaal.stijlpal, loc)
-stijlpallocs = summarise(stijlpallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
-
-# initialize the map
-plot(spdf, border="darkgrey")
-map("rivers", add=TRUE, col="cornflowerblue")
-
-# plot the palatalization observations on map
-points(stijlpallocs$longitude, stijlpallocs$latitude, pch=20, 
-       cex=(stijlpallocs$count / max(stijlpallocs$count)) + 1, col="red")
+pivotAndPlot(citetaal.stijlpal)
 
 ############################################################################################
 # Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
@@ -97,18 +93,9 @@ for (year in c(2012, 2013, 2014, 2015, 2016))
 				       citetaal$loc != "" & 
 				       citetaal$year == year
 				      ), ]
+	
+	pivotAndPlot5(citetaal.stijlpal)
 
-	# calculate per location the amount of palatalization observations
-	stijlpallocgroup = group_by(citetaal.stijlpal, loc)
-	stijlpallocs = summarise(stijlpallocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
-
-	# initialize the map
-	plot(spdf, border="darkgrey", main=year)
-	map("rivers", add=TRUE, col="cornflowerblue")
-
-	# plot the palatalization observations on map
-	points(stijlpallocs$longitude, stijlpallocs$latitude, pch=20, 
-	       cex=(stijlpallocs$count / max(stijlpallocs$count)) + 1, col="red")
 }
 
 ############################################################################################
@@ -121,15 +108,6 @@ citetaal.viesint = citetaal[ which(citetaal$tweet_observation_variable == "inten
 			       grepl("vies", citetaal$tweet_observation) &
 			       citetaal$loc != ""), ]
 
-# calculate per location the amount of vies intensification observations
-viesintlocgroup = group_by(citetaal.viesint, loc)
-viesintlocs = summarise(viesintlocgroup, count=n(), latitude=mean(lat), longitude=mean(lon))
-
-# initialize the map
 par(mfrow=c(1,1))
-plot(spdf, border="darkgrey")
-map("rivers", add=TRUE, col="cornflowerblue")
 
-# plot the vies observations on map
-points(viesintlocs$longitude, viesintlocs$latitude, pch=20, 
-       cex=(viesintlocs$count / max(viesintlocs$count)) + 1, col="red")
+pivotAndPlot(citetaal.viesint)
