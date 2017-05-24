@@ -57,6 +57,8 @@ pivotAndProportionFactorAndPlot <- function(selected_data, grouper, a, b) {
 	# turn into wide format as to be able to take proportion of cite observations
 	summarised.wide = spread_(summarised, grouper, 'count')
 	summarised.wide[is.na(summarised.wide)] <- 0
+	if (!(a %in% names(summarised.wide))) {summarised.wide[a] = 0}
+	if (!(b %in% names(summarised.wide))) {summarised.wide[b] = 0}
 	ratios = summarised.wide[a] / (summarised.wide[a] + summarised.wide[b])
 	
 	# add to lat/lon source
@@ -172,3 +174,47 @@ pivotAndProportionFactorAndPlot(citetaal.stijl.cool.cite, 'intensification', 'ye
 par(mfrow=c(1,1))
 pivotAndProportionFactorAndPlot(citetaal.stijl.cool.notcite, 'intensification', 'yes', 'no')
 
+############################################################################################
+# KAART 11. Evolutie hashtags bij citevariant stijl (cool)
+############################################################################################
+
+par(mfrow=c(2,3))
+for (year in c(2012, 2013, 2014, 2015, 2016)) 
+{
+	# fetch the palatalization observations
+	citetaal.stijl.cool.year = citetaal[which(citetaal$tweet_observation_variant == "cite" &
+				                  citetaal$shibboleth == "stijl" &
+				                  citetaal$loc != "" & 
+				                  citetaal$year == year), ]
+	pivotAndProportionFactorAndPlot(citetaal.stijl.cool.year, 'stylisation', 'hashtag', 'no hashtag')
+}
+
+############################################################################################
+# KAART 12. Evolutie intensification bij citevariant stijl (cool)
+############################################################################################
+
+par(mfrow=c(2,3))
+for (year in c(2012, 2013, 2014, 2015, 2016)) 
+{
+	# fetch the palatalization observations
+	citetaal.stijl.cool.year = citetaal[which(citetaal$tweet_observation_variant == "cite" &
+				                  citetaal$shibboleth == "stijl" &
+				                  citetaal$loc != "" & 
+				                  citetaal$year == year), ]
+	pivotAndProportionFactorAndPlot(citetaal.stijl.cool.year, 'intensification', 'yes', 'no')
+}
+
+############################################################################################
+# KAART 13. Evolutie sh/sj bij citevariant stijl (cool)
+############################################################################################
+
+par(mfrow=c(2,3))
+for (year in c(2012, 2013, 2014, 2015, 2016)) 
+{
+	# fetch the palatalization observations
+	citetaal.stijl.cool.year = citetaal[which(citetaal$tweet_observation_variant == "cite" &
+				                  citetaal$shibboleth == "stijl" &
+				                  citetaal$loc != "" & 
+				                  citetaal$year == year), ]
+	pivotAndProportionFactorAndPlot(citetaal.stijl.cool.year, 'orthography', 'sh', 'sj')
+}
