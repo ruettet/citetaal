@@ -57,27 +57,22 @@ citetaal$lat =  as.numeric(gsub(",", ".", as.vector(citetaal$lat)))
 citetaal$lon =  as.numeric(gsub(",", ".", as.vector(citetaal$lon)))
 
 ############################################################################################
-# Niet variationele kaarten van palatalisatie in het algemeen
+# KAART 1. Niet variationele kaarten van palatalisatie, jaar per jaar
 ############################################################################################
 
-# fetch the palatalization observations
-citetaal.pal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
-			       citetaal$tweet_observation_variant == "cite" &
-			       citetaal$loc != ""), ]
+par(mfrow=c(2,3))
+for (year in c(2012, 2013, 2014, 2015, 2016)) 
+{
+	# fetch the palatalization observations
+	citetaal.pal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
+				       citetaal$tweet_observation_variant == "cite" &
+				       citetaal$loc != "" & 
+				       citetaal$year == year
+				      ), ]
+	pivotAndPlot5(citetaal.pal)
+}
 
-pivotAndPlot(citetaal.pal)
 
-############################################################################################
-# Niet variationele kaarten van palatalisatie "shtijl"
-############################################################################################
-
-# fetch the palatalization observations
-citetaal.stijlpal = citetaal[ which(citetaal$tweet_observation_variable == "palatalisation" & 
-			       citetaal$tweet_observation_variant == "cite" &
-			       grepl("ijl", citetaal$tweet_observation) &
-			       citetaal$loc != ""), ]
-
-pivotAndPlot(citetaal.stijlpal)
 
 ############################################################################################
 # Niet variationele kaarten van palatalisatie "shtijl", jaar per jaar
